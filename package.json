@@ -1,0 +1,21 @@
+{
+  "name": "twitter-scrapper",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "dependencies": {
+    "async": "^2.6.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "hbs": "~4.0.1",
+    "http-errors": "^1.6.3",
+    "morgan": "~1.9.0",
+    "nodemon": "^1.18.10",
+    "puppeteer": "^1.13.0",
+    "socket.io": "^2.2.0",
+    "wink-sentiment": "^5.0.1"
+  }
+}

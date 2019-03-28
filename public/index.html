@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.js"></script>
+	<title>Twitter Scrapper</title>
+	<style type="text/css">
+		footer{
+			position: absolute;
+		    bottom: 0;
+		    width: 100%;
+		}
+		#bubble_chart {
+			position: relative;
+		}
+		#bubble_chart svg {
+			background-color: #f1d4f1;
+		}
+		.legend text {
+		    font-size: 8px;
+		}
+	</style>
+	<script type="text/javascript" src=https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js></script>
+</head>
+<body>
+	<header>
+      <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+          <a href="/" class="navbar-brand d-flex align-items-center">
+            <strong>Twitter scrapper</strong>
+          </a>
+        </div>
+      </div>
+    </header>
+	<main role="main" class="container mt-2">
+		<div class="row mb-2">
+			<div class="col-3">
+				<div class="input-group">
+				  	<div class="input-group-prepend">
+					    <span class="input-group-text">#</span>
+					</div>
+				  	<input type="text" class="form-control" placeholder="hashtag" id="hashtag" aria-label="hashtag">
+				</div>
+			</div>
+			<div class="col-3">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<span class="input-group-text">Days</span>
+					</div>
+					<input id="days" type="number" min="1" max="31" class="form-control" aria-label="number of days to scrape twitter">
+					<div class="input-group-append">
+						<span class="input-group-text"><= 31</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-4">
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<div class="input-group-text">
+							<input type="radio" name="level" value="1" checked aria-label="Radio button first level search">
+						</div>
+						<div class="input-group-append mr-1">
+							<span class="input-group-text" style="background-color: transparent;">1st level</span>
+						</div>
+						<div class="input-group-text">
+							<input type="radio" name="level" value="2" aria-label="Radio button second level search">
+						</div>
+						<div class="input-group-append">
+							<span class="input-group-text" style="background-color: transparent;">2nd level</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-2">
+				<button id="submit" type="button" class="btn btn-primary w-100" disabled>Search</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-10">
+				<div className="bubble-chart" id="bubble_chart"></div>
+			</div>
+			<div class="col-2">
+				<h6 id="sentiment">Sentiment: <span class="badge badge-danger badge-success"></span></h6>
+			</div>
+		</div>
+	</main>
+	<footer class="page-footer font-small blue pt-4">
+	    <div class="footer-copyright p-3 bg-dark box-shadow text-white">© 2019 Gale Partners</div>
+  	</footer>
+  	<script type="text/javascript" src="javascripts/index.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
