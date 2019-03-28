@@ -21,4 +21,4 @@ A twitter scrapper using nodejs + puppeteer. Coupled with sentiment analysis
 * stemming
 
 ## Page screenshot
-![page screenshot](./public/images/page.png "page screenshot")
+![page screenshot](https://github.com/anirvann/twitter-scrapper/blob/master/public/images/page..png?raw=true)
