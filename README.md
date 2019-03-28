@@ -19,3 +19,6 @@ A twitter scrapper using nodejs + puppeteer. Coupled with sentiment analysis
 * allow user to save tweets
 * show scrapping progress in browser
 * stemming
+
+## Page screenshot
+![page screenshot](./public/images/page.png "page screenshot")
