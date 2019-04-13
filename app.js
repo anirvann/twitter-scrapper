@@ -21,7 +21,10 @@ function onError(error) {
             throw error;
     }
 }
-
+/**
+ * @param  {object} page - puppeteer new tab object
+ * @param  {number} days - number to days worth of tweets
+ */
 async function autoScroll(page, days) {
     try {
         let scroll = true,
@@ -48,7 +51,14 @@ async function autoScroll(page, days) {
         console.log(`error :: ${e}`);
     }
 };
-
+/**
+ * @param  {number} days - number to days worth of tweets
+ * @param  {object} page - puppeteer new tab object
+ * @param  {string} url - page to goto
+ * @param  {number} category - level of scraping (1 - for scraping original hastag, 2 - for scraping handles who tweeted)
+ * @param  {object} sentiment - 'wink-sentiment' object to figure out sentiment of a tweet
+ * @param  {object} socket - io object
+ */
 async function getDataFromUrl(days, page, url, category, sentiment, socket) {
     console.log(`URL :: ${url}`);
 
