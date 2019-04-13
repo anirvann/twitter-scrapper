@@ -9,6 +9,7 @@
 	<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.js"></script>
 	<title>Twitter Scrapper</title>
 	<style type="text/css">
+		.container-fluid { width: 85%; }
 		footer{
 			position: absolute;
 		    bottom: 0;
@@ -36,6 +37,9 @@
 		.loading {
 			animation: rotation 2s infinite linear;
 		}
+		.list-group.tweets { max-height: 400px; overflow-y: auto; }
+		.list-group.tweets .list-group-item { word-break: break-all; font-size: 12px; }
+		#bubble_chart g text { mix-blend-mode: difference; fill: white; }
 	</style>
 	<script type="text/javascript" src=https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js></script>
 </head>
@@ -53,7 +57,7 @@
 			</a>
 		</div>
 	</header>
-	<main role="main" class="container mt-2">
+	<main role="main" class="container-fluid mt-2">
 		<div class="row mb-2">
 			<div class="col-3">
 				<div class="input-group">
@@ -97,11 +101,13 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-10">
+			<div class="col-9">
 				<div className="bubble-chart" id="bubble_chart"></div>
 			</div>
-			<div class="col-2">
-				<h6 id="sentiment">Sentiment: <span class="badge badge-danger badge-success"></span></h6>
+			<div class="col-3">
+				<h5 id="sentiment">Sentiment: <span class="badge badge-danger badge-success"></span></h5>
+				<ul class="list-group tweets positive"></ul>
+				<ul class="list-group tweets negative"></ul>
 			</div>
 		</div>
 	</main>

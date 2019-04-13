@@ -69,11 +69,10 @@ async function getDataFromUrl(days, page, url, category, sentiment, socket) {
                 .replace(/\n/g, " ")
                 .match(new RegExp(/#([\w]*)/, "g")) || []
             ).map(hashtag => hashtag.substr(1)),
-            tweet: tweet.innerText.replace(/\n/g, "")
+            tweet: tweet.querySelector(".tweet-text").innerText.replace(/\n/g, "")
         }))
     });
     page.close();
-    // console.log(tweets);
     const result = tweets.map(tweetData => ({ ...tweetData,
         ...{
             category: category,
@@ -83,7 +82,6 @@ async function getDataFromUrl(days, page, url, category, sentiment, socket) {
     socket.emit('tweet-data', {
         data: result
     });
-    console.log('tweet-data');
     return result;
 };
 
@@ -147,7 +145,6 @@ async function getDataFromUrl(days, page, url, category, sentiment, socket) {
                 data: tweetData
             });
             if (obj.level === "2") {
-                console.log(typeof tweetData);
                 const handles = tweetData.map(tweet => tweet.mentions).flat();
                 const uniqueHandles = [...new Set(handles)];
                 socket.emit('result-detail', {

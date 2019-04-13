@@ -86,11 +86,9 @@ function renderNotification(elem, msg){
 function structureData(data) {
 	window.tweetData = data;
 	const firstLevelHashtags = data.map(datum => datum.hashtags).flat();
-	// const secondLevelHashtags = data['second-level-data'].flat().map(datum => datum.hastags).flat();
-
-	const firstHashtagCountColln = {};
-	// const secondHashtagCountColln = {};
-
+	const badgeElem = document.querySelector('#sentiment .badge');
+	const positiveListContainer = document.querySelector('.list-group.positive');
+	const negativeListContainer = document.querySelector('.list-group.negative');
 	const flattenedHashtags = data
 		.map(datum => datum.hashtags.map(d => ({
 			hashtag: d,
@@ -98,30 +96,15 @@ function structureData(data) {
 			category: datum.category
 		})))
 		.flat();
-	// .reduce((acc, obj) => {
-	// 	acc[obj.hashtag] = { count: ((acc[obj.hashtag] && acc[obj.hashtag].count) || 0) + 1, category: obj.category };
-	// 	return acc;
-	// }, firstHashtagCountColln);
 	const uniqueFirstLevelHashtags = [...new Set(firstLevelHashtags)];
-	const level1Sentiment = data.filter(datum => datum.category === 'level1');
-	const level1SentimentValue = level1Sentiment.reduce((acc, val) => acc + parseFloat(val['sentiment']['score'], 10), 0) / level1Sentiment.length;
+	const sentimentValue = data.reduce((acc, val) => acc + parseFloat(val['sentiment']['score'], 10), 0) / data.length;
 
-	document.querySelector('#sentiment .badge').innerText = level1SentimentValue.toFixed(2);
-	document.querySelector('#sentiment .badge').classList.remove('badge-success');
-	document.querySelector('#sentiment .badge').classList.remove('badge-danger');
-	document.querySelector('#sentiment .badge').classList.add(level1SentimentValue > 0 ? 'badge-success' : 'badge-danger');
+	badgeElem.innerText = sentimentValue.toFixed(2);
+	badgeElem.classList.remove('badge-success');
+	badgeElem.classList.remove('badge-danger');
 
-	// secondLevelHashtags.reduce((acc, val) => { acc[val] = (acc[val] || 0) + 1; return acc; }, secondHashtagCountColln);
-	// const uniqueSecondLevelHashtags = [...new Set(secondLevelHashtags)];
-
-	// return [
-	//   uniqueFirstLevelHashtags.map(hashtag => ({
-	//     title: hashtag, category: 'direct-mentions', views: firstHashtagCountColln[hashtag]
-	//   })),
-	//   uniqueSecondLevelHashtags.map(hashtag => ({
-	//     title: hashtag, category: 'user-also-tweeted', views: secondHashtagCountColln[hashtag]
-	//   }))
-	// ].flat();
+	badgeElem.classList.add(sentimentValue > 3.5 ? 'badge-success' : sentimentValue > 2 ? 'badge-warning' : sentimentValue > 0 ? 'badge-secondary' : 'badge-danger');
+	tweetExtractor(data, positiveListContainer, negativeListContainer);
 	return uniqueFirstLevelHashtags.map(hashtag => {
 		const matchingHashtags = flattenedHashtags.filter(fht => fht.hashtag === hashtag);
 		return {
@@ -139,13 +122,13 @@ function renderBubbleChart(data) {
 			bottom: 0,
 			left: 20
 		},
-		containerWidth = document.querySelector('.container').clientWidth,
+		containerWidth = document.querySelector('.container-fluid').clientWidth,
 		screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
 		width = (containerWidth * 3 / 4) - margin.left - margin.right,
 		height = screenHeight - margin.top - margin.bottom - 100,
 		circleScale = 2;
 
-	const color = d3.scaleOrdinal(data.map(d => d.category), d3.schemeCategory10);
+	const color = d3.scaleOrdinal(data.map(d => d.category), ['#000000', '#0900b1', '#6aabd1' ]);
 
 	d3.select("#bubble_chart svg").remove();
 
@@ -179,6 +162,7 @@ function renderBubbleChart(data) {
 	leaf.append("text")
 		.text(d => d.data.title)
 		.style("width", d => 2 * d.r)
+		// .style("color")
 		.style("font-size", d => {
 			let textWidthRatio = 1;
 			const availableWidth = 2 * d.r - 4;
@@ -202,3 +186,21 @@ function renderBubbleChart(data) {
 				g.attr("transform", d3.event.transform);
 			}));
 }
+
+function tweetExtractor(data, positiveListContainer, negativeListContainer){
+	positiveListContainer.innerHTML = '';
+	negativeListContainer.innerHTML = '';
+	var top10PositiveTweets = data.sort(function(a, b){
+		return b.sentiment.normalizedScore - a.sentiment.normalizedScore;
+	}).slice(0, 10);
+	var top10NegativeTweets = data.sort(function(a, b){
+		return a.sentiment.normalizedScore - b.sentiment.normalizedScore;
+	}).slice(0, 10);
+	console.log(top10NegativeTweets.length, top10NegativeTweets.length);
+	top10PositiveTweets.forEach(function(tweetObj){
+		positiveListContainer.innerHTML = positiveListContainer.innerHTML + `<li class="list-group-item list-group-item-success">${tweetObj.tweet}<strong>[${tweetObj.sentiment.normalizedScore}]</strong></li>`;
+	});
+	top10NegativeTweets.forEach(function(tweetObj){
+		negativeListContainer.innerHTML = negativeListContainer.innerHTML + `<li class="list-group-item list-group-item-danger">${tweetObj.tweet}<strong>[${tweetObj.sentiment.normalizedScore}]</strong></li>`;
+	});
+};
