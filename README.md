@@ -9,6 +9,8 @@ A twitter scrapper using nodejs + puppeteer. Coupled with sentiment analysis
 * D3 - used in browser to render bubble chart.
 
 ## How to use
+* install all dependencies with ` npm install `
+* run ` npm start ` to start server using nodemon
 * Load the browser [link](http://localhost:3000/)
 * Put the hashtag and days (both are needed to activate the button)
 * Level 1 - use this to search just the hashtag
@@ -21,4 +23,4 @@ A twitter scrapper using nodejs + puppeteer. Coupled with sentiment analysis
 * stemming
 
 ## Page screenshot
-![page screenshot](https://github.com/anirvann/twitter-scrapper/blob/master/public/images/page..png?raw=true)
+![page screenshot](https://github.com/anirvann/twitter-scrapper/blob/master/public/images/screenshot.png?raw=true)

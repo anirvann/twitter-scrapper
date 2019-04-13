@@ -115,7 +115,7 @@ async function getDataFromUrl(days, page, url, category, sentiment, socket) {
     const browser = await puppeteer.launch();
     const url = "https://twitter.com/search?f=tweets&q=%23";
     const app = express();
-    const port = process.env.PORT || '8888';
+    const port = process.env.PORT || '3000';
     const maxParallelRequests = 5;
 
     app.use(logger('dev'));
