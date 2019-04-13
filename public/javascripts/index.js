@@ -5,11 +5,14 @@
 		days = document.querySelector('#days'),
 		submitBtn = document.querySelector('#submit'),
 		level = document.querySelectorAll("input[type=radio]"),
-		selectedLevel = document.querySelector("input[type=radio]:checked");
+		selectedLevel = document.querySelector("input[type=radio]:checked"),
+		notification = document.querySelector('.notification'),
+    scrapedURLIndex = 0;
 
 	var hashtagValue = "",
 		daysValue = "",
-		levelValue = level.value;
+		levelValue = level.value,
+		secondLevelTweetCount;
 
 	hashtag.addEventListener("change", function(e) {
 		hashtagValue = e.target.value;
@@ -26,6 +29,8 @@
 	});
 	submitBtn.addEventListener("click", function(e) {
 		e.preventDefault();
+		submitBtn.disabled = true;
+		submitBtn.innerText = 'scraping...';
 		tweetData = [];
 		socket.emit('scrape-config', {
 			hashtag: hashtagValue,
@@ -34,10 +39,34 @@
 		});
 		return false;
 	});
-	socket.on('data', function(response) {
+	socket.on('disconnect', () => {
+		socket.open();
+	});
+	socket.on('tweet-data', function(response) {
+		if(response.data[0].category === 'level1'){
+			renderNotification(notification, 'first level data result');
+			notification.querySelector('span').innerText = '';
+			notification.setAttribute('hidden', true);
+			submitBtn.innerText = 'Search';
+			submitBtn.disabled = false;
+		}else{
+			renderNotification(notification, `second level data: (${scrapedURLIndex++}/${secondLevelTweetCount}) `);
+		}
 		tweetData = [tweetData, response.data].flat();
 		renderBubbleChart(structureData(tweetData));
-		// document.querySelector('#result').textContent += JSON.stringify(msg);
+	});
+
+	socket.on('result-detail', function(response) {
+		console.log('result-detail');
+		secondLevelTweetCount = response.secondLevelTweetCount;
+		renderNotification(notification, `second level data: (${scrapedURLIndex}/${secondLevelTweetCount}) `);
+	});
+
+	socket.on('done', function(response) {
+		notification.querySelector('span').innerText = '';
+		notification.setAttribute('hidden', true);
+		submitBtn.innerText = 'Search';
+		submitBtn.disabled = false;
 	});
 
 	var submitBtnState = function() {
@@ -48,6 +77,11 @@
 		}
 	};
 })();
+
+function renderNotification(elem, msg){
+	elem.removeAttribute('hidden');
+	elem.querySelector('span').innerText = msg;
+}
 
 function structureData(data) {
 	window.tweetData = data;
@@ -111,7 +145,7 @@ function renderBubbleChart(data) {
 		height = screenHeight - margin.top - margin.bottom - 100,
 		circleScale = 2;
 
-	const color = d3.scaleOrdinal(data.map(d => d.group), d3.schemeCategory10);
+	const color = d3.scaleOrdinal(data.map(d => d.category), d3.schemeCategory10);
 
 	d3.select("#bubble_chart svg").remove();
 

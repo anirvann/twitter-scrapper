@@ -23,13 +23,11 @@ function onError(error) {
 }
 
 async function autoScroll(page, days) {
-    console.log('abt to scroll');
     try {
         let scroll = true,
             previousHeight,
             scrollDelay = 400;
         while (scroll) {
-            console.log(`scroll: ${scroll}`);
             let timeStamp = await page.evaluate(async () => {
                 let tweetTimeStampsColln = Array.from(
                     document.querySelectorAll(".tweet-timestamp span")
@@ -51,14 +49,13 @@ async function autoScroll(page, days) {
     }
 };
 
-async function getDataFromUrl(days, page, url, category, sentiment) {
+async function getDataFromUrl(days, page, url, category, sentiment, socket) {
     console.log(`URL :: ${url}`);
 
     await page.goto(url);
-    console.log('page loaded');
     await autoScroll(page, days);
 
-    const tweetData = await page.evaluate(async () => {
+    const tweets = await page.evaluate(async () => {
         return Array.from(document.querySelectorAll("div.tweet.original-tweet")).map(tweet => ({
             mentions: (
                 tweet.innerText
@@ -75,13 +72,19 @@ async function getDataFromUrl(days, page, url, category, sentiment) {
             tweet: tweet.innerText.replace(/\n/g, "")
         }))
     });
-    console.log(tweetData);
-    return tweetData.map(tweetData => ({ ...tweetData,
+    page.close();
+    // console.log(tweets);
+    const result = tweets.map(tweetData => ({ ...tweetData,
         ...{
             category: category,
             sentiment: sentiment(tweetData.tweet)
         }
     }));
+    socket.emit('tweet-data', {
+        data: result
+    });
+    console.log('tweet-data');
+    return result;
 };
 
 (async () => {
@@ -104,7 +107,7 @@ async function getDataFromUrl(days, page, url, category, sentiment) {
     const browser = await puppeteer.launch();
     const url = "https://twitter.com/search?f=tweets&q=%23";
     const app = express();
-    const port = process.env.PORT || '3000';
+    const port = process.env.PORT || '8888';
     const maxParallelRequests = 5;
 
     app.use(logger('dev'));
@@ -134,25 +137,27 @@ async function getDataFromUrl(days, page, url, category, sentiment) {
             console.log('user disconnected');
         });
         socket.on('scrape-config', async function(obj) {
-            let page = await browser.newPage();
-            const tweetData = await getDataFromUrl(parseInt(obj.days, 10), page, `${url}${obj.hashtag}`, 'level1', sentiment);
-            socket.emit('data', {
+            // let page = await browser.newPage();
+            socket.emit('notification', {
+                msg: '... scraping first level data'
+            });
+            const tweetData = await getDataFromUrl(parseInt(obj.days, 10), await browser.newPage(), `${url}${obj.hashtag}`, 'level1', sentiment, socket);
+            // page.close();
+            socket.emit('tweet-data', {
                 data: tweetData
             });
             if (obj.level === "2") {
-                console.log("getting 2nd level data");
+                console.log(typeof tweetData);
                 const handles = tweetData.map(tweet => tweet.mentions).flat();
                 const uniqueHandles = [...new Set(handles)];
-
+                socket.emit('result-detail', {
+                    secondLevelTweetCount: uniqueHandles.length
+                });
                 parallelLimit(
-                    uniqueHandles.map(handle => async () => await getDataFromUrl(parseInt(obj.days, 10), page, `https://twitter.com/${handle}`, 'level2', sentiment)),
+                    uniqueHandles.map(handle => async () => await getDataFromUrl(parseInt(obj.days, 10), await browser.newPage(), `https://twitter.com/${handle}`, 'level2', sentiment, socket)),
                     maxParallelRequests,
                     function(err, result) {
-                        console.log('data received');
-                        browser.close();
-                        socket.emit('data', {
-                            data: result.flat()
-                        });
+                        socket.emit('done');
                     });
             }
         });
@@ -165,7 +170,7 @@ async function getDataFromUrl(days, page, url, category, sentiment) {
         });
     });
 
-    server.listen(port);
+    server.listen(port, () => console.log(`Server started on http://localhost:${port}`));
     server.on('error', onError);
     server.on('listening', function() {
         const addr = server.address();
