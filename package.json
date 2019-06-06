@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./app.js"
+    "start": "nodemon ./app.js",
+    "serve": "node ./app.js"
   },
   "dependencies": {
     "async": "^2.6.2",

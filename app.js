@@ -28,8 +28,11 @@ function onError(error) {
 async function autoScroll(page, days) {
     try {
         let scroll = true,
-            previousHeight,
-            scrollDelay = 400;
+            previousHeight;
+            
+        const scrollDelay = 400,
+              dayInSec = days * 24 * 60 * 60 * 1000;
+              
         while (scroll) {
             let timeStamp = await page.evaluate(async () => {
                 let tweetTimeStampsColln = Array.from(
@@ -37,7 +40,7 @@ async function autoScroll(page, days) {
                 );
                 return tweetTimeStampsColln[tweetTimeStampsColln.length - 1].dataset.timeMs;
             });
-            if ((new Date() - parseInt(timeStamp, 10) >= days * 24 * 60 * 60 * 1000)) {
+            if ((new Date() - parseInt(timeStamp, 10) >= dayInSec)) {
                 scroll = false;
                 console.log(`scroll: ${scroll}`);
                 break;
@@ -112,7 +115,10 @@ async function getDataFromUrl(days, page, url, category, sentiment, socket) {
         headless: false,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     }*/
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const url = "https://twitter.com/search?f=tweets&q=%23";
     const app = express();
     const port = process.env.PORT || '3000';
